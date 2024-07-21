@@ -1,19 +1,39 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
 
+// 1) MIDDLEWARES
+
+app.use(morgan('dev'));
+
 app.use(express.json()); // this (express.json) here is called middleware
 // middleware is a function that can modify the incoming request data, its literally stands in the middle of the request and response, its a step that the request goes through while its being processed
+
+app.use((req, res, next) => {
+  console.log('Hello from the middleware');
+  next();
+});
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
 
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 // console.log(tours);
 
+// 2) ROUTE HANDLERS
+
 const getAllTours = (req, res) => {
+  console.log(req.requestTime);
+
   res.status(200).json({
     status: 'success',
+    requestedAt: req.requestTime,
     results: tours.length,
     data: {
       // tours: tours
@@ -97,17 +117,54 @@ const deleteTour = (req, res) => {
   });
 };
 
+const getAllUsers = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not implemented',
+  });
+};
+
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not implemented',
+  });
+};
+
+const getUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not implemented',
+  });
+};
+
+const updateUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not implemented',
+  });
+};
+
+const removeUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not implemented',
+  });
+};
+
+// 3) ROUTES
+
 // app.get('/api/v1/tours', getAllTours);
 
 // app.get('/api/v1/tours/:id/:x/:y', (req, res) => { // you define multiple parameters/url variables
 // app.get('/api/v1/tours/:id/:x/:y?', (req, res) => { // you can also define an optional parameter
-app.get('/api/v1/tours/:id', getTour);
+// app.get('/api/v1/tours/:id', getTour);
 
 // app.post('/api/v1/tours', createTour);
 
-app.patch('/api/v1/tours/:id', updateTour);
+// app.patch('/api/v1/tours/:id', updateTour);
 
-app.delete('/api/v1/tours/:id', deleteTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
 
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 
@@ -116,6 +173,16 @@ app
   .get(getTour)
   .patch(updateTour)
   .delete(deleteTour);
+
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
+
+app
+  .route('/api/v1/users/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(removeUser);
+
+// 4) START SERVER
 
 const port = 3000;
 app.listen(port, () => {
