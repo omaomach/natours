@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
 );
 
 exports.checkID = (req, res, next, val) => {
@@ -59,20 +59,21 @@ exports.createTour = (req, res) => {
   // console.log(req.body);
 
   const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body); // The 'Object.assign allows us to create a new object by merging 2 objects together i.e the 'newId' object and the 'req.body' object
+  // eslint-disable-next-line node/no-unsupported-features/es-syntax
+  const newTour = { id: newId, ...req.body }; // The 'Object.assign allows us to create a new object by merging 2 objects together i.e the 'newId' object and the 'req.body' object
 
   tours.push(newTour);
   fs.writeFile(
     `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
-    (err) => {
+    () => {
       res.status(201).json({
         status: 'success',
         data: {
           tour: newTour,
         },
       });
-    }
+    },
   );
 };
 
