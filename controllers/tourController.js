@@ -3,9 +3,18 @@ const fs = require('fs');
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
-// console.log(tours);
 
-// 2) ROUTE HANDLER FUNCTIONS
+exports.checkID = (req, res, next, val) => {
+  console.log(`Tour id is: ${val}`);
+  if (req.params.id * 1 > tours.length - 1) {
+    return res.status(404).json({
+      status: 'Fail',
+      message: 'Invalid ID',
+    });
+  }
+  next();
+};
+
 exports.getAllTours = (req, res) => {
   console.log(req.requestTime);
 
@@ -25,15 +34,6 @@ exports.getTour = (req, res) => {
 
   const id = req.params.id * 1; // we are converting the parameter/url variable to an integer
   const tour = tours.find((el) => el.id === id);
-
-  // if (id > tours.length) { // here we are checking if the parameter is greater than the tours.length, if it is, we'll return the fail status
-  if (!tour) {
-    // here we are checking to see if the tour is undefined i.e if the tour has been found, if its undefined, we return the fail status
-    return res.status(404).json({
-      status: 'Fail',
-      message: 'Invalid ID',
-    });
-  }
 
   res.status(200).json({
     status: 'success',
@@ -66,13 +66,6 @@ exports.createTour = (req, res) => {
 };
 
 exports.updateTour = (req, res) => {
-  if (req.params.id * 1 > tours.length - 1) {
-    return res.status(404).json({
-      status: 'Fail',
-      message: 'Invalid ID',
-    });
-  }
-
   res.status(200).json({
     status: 'success',
     data: {
@@ -82,13 +75,6 @@ exports.updateTour = (req, res) => {
 };
 
 exports.deleteTour = (req, res) => {
-  if (req.params.id * 1 > tours.length - 1) {
-    return res.status(404).json({
-      status: 'Fail',
-      message: 'Invalid ID',
-    });
-  }
-
   res.status(204).json({
     status: 'success',
     data: null,
