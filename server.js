@@ -22,7 +22,7 @@ mongoose
 const tourSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'A tour must have a name.'],
+    required: [true, 'A tour must have a name.'], // validator
     unique: true,
   },
   rating: {
@@ -37,6 +37,19 @@ const tourSchema = new mongoose.Schema({
 
 const Tour = mongoose.model('Tour', tourSchema);
 
+const testTour = new Tour({
+  name: 'The Park Camper',
+  price: '1000',
+});
+
+testTour
+  .save()
+  .then((doc) => {
+    console.log(doc);
+  })
+  .catch((err) => {
+    console.log('ERROR: ', err);
+  });
 // console.log(app.get('env'));
 // console.log(process.env);
 
