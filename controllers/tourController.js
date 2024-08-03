@@ -18,16 +18,16 @@ const Tour = require('./../models/tourModel');
 //   next();
 // };
 
-exports.checkBody = (req, res, next) => {
-  console.log(`Tour body: `, req.body);
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).json({
-      status: 'bad request',
-      message: 'missing name or price',
-    });
-  }
-  next();
-};
+// exports.checkBody = (req, res, next) => {
+//   console.log(`Tour body: `, req.body);
+//   if (!req.body.name || !req.body.price) {
+//     return res.status(400).json({
+//       status: 'bad request',
+//       message: 'missing name or price',
+//     });
+//   }
+//   next();
+// };
 
 exports.getAllTours = (req, res) => {
   //   console.log(req.requestTime);
@@ -59,13 +59,8 @@ exports.getTour = (req, res) => {
   // });
 };
 
-exports.createTour = (req, res) => {
-  res.status(201).json({
-    status: 'success',
-    // data: {
-    //   tour: newTour,
-    // },
-  });
+exports.createTour = async (req, res) => {
+  const newTour = await Tour.create(req.body);
 };
 
 exports.updateTour = (req, res) => {
