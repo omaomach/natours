@@ -60,7 +60,25 @@ exports.getTour = (req, res) => {
 };
 
 exports.createTour = async (req, res) => {
-  const newTour = await Tour.create(req.body);
+  try {
+    // const newTour = new Tour({})
+    // newTour.save()
+
+    const newTour = await Tour.create(req.body); // we use async, await because Tour.create returns a promise that we are awaiting so that we can store then newly created tour document inside the newTour
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (err) {
+    // We have a try, catch because we've used an async await function
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid data sent',
+    });
+  }
 };
 
 exports.updateTour = (req, res) => {
