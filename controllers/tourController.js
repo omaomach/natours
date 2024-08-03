@@ -1,19 +1,22 @@
-const fs = require('fs');
+/* eslint-disable no-unused-vars */
+// const fs = require('fs');
+// eslint-disable-next-line import/no-useless-path-segments
+const Tour = require('./../models/tourModel');
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
-);
+// const tours = JSON.parse(
+//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
+// );
 
-exports.checkID = (req, res, next, val) => {
-  console.log(`Tour id is: ${val}`);
-  if (req.params.id * 1 > tours.length - 1) {
-    return res.status(404).json({
-      status: 'Fail',
-      message: 'Invalid ID',
-    });
-  }
-  next();
-};
+// exports.checkID = (req, res, next, val) => {
+//   console.log(`Tour id is: ${val}`);
+//   if (req.params.id * 1 > tours.length - 1) {
+//     return res.status(404).json({
+//       status: 'Fail',
+//       message: 'Invalid ID',
+//     });
+//   }
+//   next();
+// };
 
 exports.checkBody = (req, res, next) => {
   console.log(`Tour body: `, req.body);
@@ -32,49 +35,37 @@ exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     requestedAt: req.requestTime,
-    results: tours.length,
-    data: {
-      // tours: tours
-      tours,
-    },
+    // results: tours.length,
+    // data: {
+    //   // tours: tours
+    //   tours,
+    // },
   });
 };
 
+// eslint-disable-next-line no-unused-vars
 exports.getTour = (req, res) => {
   console.log(req.params);
 
   const id = req.params.id * 1; // we are converting the parameter/url variable to an integer
-  const tour = tours.find((el) => el.id === id);
+  // const tour = tours.find((el) => el.id === id);
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      // tours: tours
-      tour: tour,
-    },
-  });
+  // res.status(200).json({
+  //   status: 'success',
+  //   data: {
+  //     // tours: tours
+  //     tour: tour,
+  //   },
+  // });
 };
 
 exports.createTour = (req, res) => {
-  // console.log(req.body);
-
-  const newId = tours[tours.length - 1].id + 1;
-  // eslint-disable-next-line node/no-unsupported-features/es-syntax
-  const newTour = { id: newId, ...req.body }; // The 'Object.assign allows us to create a new object by merging 2 objects together i.e the 'newId' object and the 'req.body' object
-
-  tours.push(newTour);
-  fs.writeFile(
-    `${__dirname}/../dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    () => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          tour: newTour,
-        },
-      });
-    },
-  );
+  res.status(201).json({
+    status: 'success',
+    // data: {
+    //   tour: newTour,
+    // },
+  });
 };
 
 exports.updateTour = (req, res) => {
