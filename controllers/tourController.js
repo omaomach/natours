@@ -32,31 +32,31 @@ const Tour = require('./../models/tourModel');
 exports.getAllTours = async (req, res) => {
   try {
     // BUILD QUERY
-    // 1a) Filtering
+    // 1a) FILTERING
     const queryObject = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObject[el]);
 
-    // console.log(req.query, queryObject);
+    console.log(req.query, queryObject);
 
-    // 1b) Advanced filtering
+    // 1b) ADVANCED FILTERING
     let queryStr = JSON.stringify(queryObject);
     queryStr = queryStr.replace(/(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    console.log(JSON.parse(queryStr));
+    // console.log('Query String: ', JSON.parse(queryStr));
 
     // { difficulty: 'easy', duration: { $gte: 5 } }
     // { duration: { gte: '5' }, difficulty: 'easy' }
 
     let query = Tour.find(JSON.parse(queryStr));
 
-    // 2) Sorting
+    // 2) SORTING
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
-      console.log(sortBy);
+      // console.log(sortBy);
       query = query.sort(sortBy);
       // sort('price ratingsAverage')
     } else {
-      query = query.sort('-createdAt');
+      // query = query.sort('-createdAt');  // I had to comment this out as it was affecting the pagination
     }
 
     // const tours = await Tour.find()
@@ -64,6 +64,21 @@ exports.getAllTours = async (req, res) => {
     //   .equals(5)
     //   .where('difficulty')
     //   .equals('easy');
+
+    // 3) FIELD LIMITING
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v');
+    }
+
+    // 4) PAGINATION
+    const page = req.query.page * 1 || 1; // we are converting the page number in the query string to an integer. We are also defining a default page number
+    const limit = req.query.limit * 1 || 100; // the limit is the number of items per page
+    const skip = (page - 1) * limit; // these are the results that come before the page that we are requesting
+
+    query = query.skip(skip).limit(limit);
 
     // EXECUTE QUERY
     const tours = await query;
@@ -79,7 +94,7 @@ exports.getAllTours = async (req, res) => {
   } catch (err) {
     res.status(404).json({
       status: 'fail',
-      message: err,
+      message: err.message,
     });
   }
 };
