@@ -1,33 +1,5 @@
-/* eslint-disable no-unused-vars */
-// const fs = require('fs');
-// eslint-disable-next-line import/no-useless-path-segments
-const Tour = require('./../models/tourModel');
-
-// const tours = JSON.parse(
-//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
-// );
-
-// exports.checkID = (req, res, next, val) => {
-//   console.log(`Tour id is: ${val}`);
-//   if (req.params.id * 1 > tours.length - 1) {
-//     return res.status(404).json({
-//       status: 'Fail',
-//       message: 'Invalid ID',
-//     });
-//   }
-//   next();
-// };
-
-// exports.checkBody = (req, res, next) => {
-//   console.log(`Tour body: `, req.body);
-//   if (!req.body.name || !req.body.price) {
-//     return res.status(400).json({
-//       status: 'bad request',
-//       message: 'missing name or price',
-//     });
-//   }
-//   next();
-// };
+const APIFeatures = require('../utils/apifeatures');
+const Tour = require('../models/tourModel');
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
@@ -38,63 +10,14 @@ exports.aliasTopTours = (req, res, next) => {
 
 exports.getAllTours = async (req, res) => {
   try {
-    // BUILD QUERY
-    // 1a) FILTERING
-    const queryObject = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObject[el]);
-
-    console.log(req.query, queryObject);
-
-    // 1b) ADVANCED FILTERING
-    let queryStr = JSON.stringify(queryObject);
-    queryStr = queryStr.replace(/(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    // console.log('Query String: ', JSON.parse(queryStr));
-
-    // { difficulty: 'easy', duration: { $gte: 5 } }
-    // { duration: { gte: '5' }, difficulty: 'easy' }
-
-    let query = Tour.find(JSON.parse(queryStr));
-
-    // 2) SORTING
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      // console.log(sortBy);
-      query = query.sort(sortBy);
-      // sort('price ratingsAverage')
-    } else {
-      // query = query.sort('-createdAt');  // I had to comment this out as it was affecting the pagination
-    }
-
-    // const tours = await Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
-
-    // 3) FIELD LIMITING
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // 4) PAGINATION
-    const page = req.query.page * 1 || 1; // we are converting the page number in the query string to an integer. We are also defining a default page number
-    const limit = req.query.limit * 1 || 100; // the limit is the number of items per page
-    const skip = (page - 1) * limit; // these are the results that come before the page that we are requesting
-
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours) throw new Error('This page does not exist');
-    }
-
     // EXECUTE QUERY
-    const tours = await query;
-    // query.sort().select().skip().limit()  // Each these methods always returns a new query that we can then chain on the next method
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const tours = await features.query;
+    // Each these methods always returns a new query that we can then chain on the next method
 
     // SEND RESPONSE
     res.status(200).json({
