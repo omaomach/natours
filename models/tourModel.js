@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const slugify = require('slugify');
+// eslint-disable-next-line import/no-extraneous-dependencies
+// const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -11,6 +13,7 @@ const tourSchema = new mongoose.Schema(
       trim: true,
       maxLength: [40, 'A tour name must have 40 or less characters'],
       minLength: [10, 'A tour name must have 10 or more characters'],
+      // validate: [validator.isAlpha, 'Tour name must only contain characters'],
     },
     slug: String,
     duration: {
@@ -44,7 +47,17 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (val) {
+          // this only points to the current doc on NEW document creation, will not work for update request
+          // we are using a real function and not an arrow function so that we can have access to the "this" variable which will point to the current document
+          return val < this.price; // the price discount < the price (true) -  the price discount is lower than the actual price, but if the discount > price return false, triggering an error
+        },
+        message: 'The discount ({VALUE}) must be less than the tour price',
+      },
+    },
     summary: {
       type: String,
       trim: true,
