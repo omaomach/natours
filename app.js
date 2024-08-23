@@ -17,11 +17,6 @@ app.use(express.json()); // this (express.json) here is called middleware
 
 app.use(express.static(`${__dirname}/public`));
 
-app.use((req, res, next) => {
-  console.log('Hello from the middleware');
-  next();
-});
-
 // app.use((req, res, next) => {
 //   req.requestTime = new Date().toISOString();
 //   next();
