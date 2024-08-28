@@ -37,17 +37,17 @@ const sendErrorProd = (err, res) => {
 };
 
 module.exports = (err, req, res, next) => {
-  // console.log('stack trace: ', err.stack);
-
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    let error = { ...err };
+    let error = Object.create(err);
 
-    if (error.name === 'CastError') error = handleCastErrorDB(error);
+    if (err.name === 'CastError') {
+      error = handleCastErrorDB(err);
+    }
 
     sendErrorProd(error, res);
   }
