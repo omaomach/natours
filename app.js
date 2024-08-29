@@ -18,6 +18,14 @@ app.use(express.json()); // this (express.json) here is called middleware
 
 app.use(express.static(`${__dirname}/public`));
 
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  // console.log(x); Any error in the express middleware, express will automatically go to the error handling middleware with that error i.e the errorController
+  next();
+});
+
+// console.log(x); // Checking if "Uncaught Expression" error handler is working
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
