@@ -20,6 +20,7 @@ app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.headers);
   // console.log(x); Any error in the express middleware, express will automatically go to the error handling middleware with that error i.e the errorController
   next();
 });
